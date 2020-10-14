@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js" integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg==" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-app-bar app color="blue darken-1">
+          <v-toolbar-title>Create Router</v-toolbar-title>
+        </v-app-bar>
+        <v-row
+        class="pa-6"
+        >
+        <v-snackbar
+      v-model="snackbar"
+    >
+      Error is ${error}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="pink"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>    
+        <v-overlay :value="overlay"></v-overlay>
+            <v-col
+            
+            
+            >
+            <v-text-field
+            label="SAP ID"
+            v-model="sapid"
+            >
+                
+            </v-text-field>
+            <v-text-field
+            v-model="hostname"
+            label="Hostname"
+            >
+                
+            </v-text-field>
+            <v-text-field
+            v-model="loopback"
+            label="IPv4"
+            >
+                
+            </v-text-field>
+            <v-text-field
+            v-model="macaddress"
+            label="MacAdress"
+            >
+                
+            </v-text-field>
+            <v-btn
+            @click="create()"
+            >
+                create
+            </v-btn>
+    
+
+            </v-col>
+        </v-row>
+        
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+
+      delimiters: ['${', '}'],
+      data(){
+        return {
+          sapid:'',
+          hostname:'',
+          loopback:'',
+          macaddress:'',
+          overlay:false,
+          snackbar: false,
+          error:''
+    
+
+        }
+      },
+      vuetify: new Vuetify(),
+      methods:{
+          create(){
+              this.overlay=true
+              axios.post('http://localhost:8000/api/',data={sapid:this.sapid,hostname:this.hostname,loopback:this.loopback,macaddress:this.macaddress}).then((res)=>{
+                    console.log('post is working ---->',res)
+                    this.overlay=false
+                    setTimeout(()=>{
+                        window.location.replace('http://localhost:8000/')
+                    },1000)
+              }).catch((er)=>{
+                  console.log('printing error',Object.keys(er),er.response)
+                this.overlay=false
+                this.snackbar=true
+                this.error=er.response.statusText
+                this.sapid=''
+          this.hostname=''
+          this.loopback=''
+         this.macaddress=''
+
+              })
+          }
+      },
+      mounted(){
+        console.log('working')
+        axios.get('http://localhost:8000/api').then(
+          (res)=>{
+            console.log('data',res.data)
+            console.log('printing list in data list',this.list)
+            this.list=res.data
+          }
+        )
+      }
+    })
+  </script>
+</body>
+</html>
